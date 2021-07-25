@@ -11,6 +11,14 @@ Markdown is a lightweight and easy-to-use syntax for styling your writing. It in
 ```markdown
 Syntax highlighted code block
 
+
+{% for post in site.posts %}
+  <li>
+    <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+    <p>{{ post.excerpt }}</p>
+  </li>
+{% endfor %}
+
 # Header 1
 ## Header 2
 ### Header 3

@@ -9,7 +9,8 @@ description: >
 version:          1.0
 gitbook_version:  3.2.3
 
-
+url:              'https://zha0q.github.io/'
+baseurl:          '/contest'
 rss:              RSS
 
 # markdown render engine.

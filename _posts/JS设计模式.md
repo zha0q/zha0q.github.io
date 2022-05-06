@@ -1,7 +1,7 @@
 ---
 title: JS设计模式
 author: zq
-date: 
+date: 2022-04-29
 category: contest
 layout: post
 ---

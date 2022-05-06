@@ -1,0 +1,1364 @@
+#### create-react-app
+
+`npx create-react-app my-demp `
+
+#### JSX语法
+
+​	基本使用 表达式用{}包裹
+
+```jsx
+const name = "React"
+<div> {name} </div>
+```
+
+​	函数
+
+```jsx
+function formatName(name) {
+    return name
+}
+<div> {formatName("harry")} </div>
+```
+
+​	JSX对象
+
+```jsx
+const greet = <div>good</div>
+{greet}
+```
+
+​	条件语句
+
+```jsx
+const show = true
+{show ? greet : "登录"}
+```
+
+​	数组
+
+```jsx
+const a = [0, 1, 2];
+{a.map(i => (
+    /* diff的时候，首先比较type，然后是key，所以同级同类型元素，key值必须唯一 */
+	 <li key={item}> {item} </li>
+))}
+```
+
+​	属性
+
+```jsx
+<img
+  src={logo}
+  className="logo"
+  style={{width: "50px", height: "30px"}}
+/>
+```
+
+​	样式模块化
+
+```jsx
+import styles from "./index.module.css"
+<img
+  className={styles.logo}
+/>
+//class会随机生成 类似scoped style
+```
+
+
+
+#### 组件
+
+##### 组件
+
+概念上类似JavaScript函数，接受任意入参（即“props“），并返回用于描述页面展示内容的React元素
+
+组件有两种形式：**class**组件和**function**组件。
+
+##### class组件
+
+拥有**状态**和**生命周期**，继承于**Component**
+
+##### function组件
+
+状态的创建与变更使用`const [date, setDate] = useState(new Date())`
+
+生命周期使用`useEffect(() => {return //unmount回调}, [依赖项])`
+
+
+
+#### state & 生命周期
+
+##### 正确使用setState
+
+`setState(partialState, callback)`
+
+1. `partialState`: object|function
+
+   用于产生与当前state合并的子集
+
+2. `callback`: function
+
+   state更新之后被调用
+
+##### 了解三件事
+
+1. **不能直接修改State**，而且直接修改不会重新渲染组件
+
+2. **State的更新可能是异步的**，出于性能考虑，React可能会把多个`setState()`调用合并成一个调用 ，*在**合成事件**和**生命周期**中是**异步批量更新**，达到了优化性能的目的；在**setTimmeout**和**原生事件**中是同步的*，即执行完setState能立刻拿到更新了的state的值；在callback回调中也可以拿到更新过后的值。
+
+3. **State的更新可能会被合并**
+
+   ```jsx
+   //更新会被合并
+   const changeValue = () => {
+       this.setState({
+           counter: this.state.counter + v
+       })   
+   }
+   this.changeValue(1)
+   this.changeValue(2)
+   
+   //更新不会被合并
+   const changeValue = () => {
+       //这里拿到的state是批量更新执行到当前批时的state
+       this.setState((state) => {
+           return {
+               counter: state.counter + v
+           }
+       }) 
+   }
+   this.changeValue(1)
+   this.changeValue(2)
+   ```
+
+   
+
+#### 生命周期
+
+##### 生命周期方法
+
+用于组件不同阶段执行自定义功能
+
+#### 组件复合-Composition
+
+#####  匿名插槽及具名插槽
+
+```jsx
+//匿名插槽
+<Layout>
+	{
+        <div>
+            <h3>HomePage</h3>
+        </div>
+    }
+</Layout>
+子组件：props.children
+//具名插槽
+{
+    {
+        content: (
+        <div>
+            <h3>HomePage</h3>
+        </div>
+        ),
+    }
+}
+子组件：props.children.content
+```
+
+
+
+#### Redux
+
+负责组织state的工具
+
+##### 下面场景，引入Redux比较明智
+
+- 有着相当大量的、随时间变化的数据
+- state需要有一个单一可靠的数据来源
+- 当将所有state放在最顶层组件中已经无法满足需要了
+- 某个组件的状态需要共享
+
+是一个JavaScript应用的状态容器，提供可预测化的状态管理。它保证程序行为一致性且易于测试
+
+![image-20211031153913449](C:\Users\赵麒\AppData\Roaming\Typora\typora-user-images\image-20211031153913449.png)
+
+##### 响应式
+
+`subscribe中 this.forceUpdate()`
+
+`App.js subscribe中 重新render`
+
+
+
+#### React-redux
+
+react-redux提供了两个API
+
+1. Provider 为后代组件提供store
+2. connect 为组件提供数据和变更方法，**高阶组件**
+
+方便之处：不需要自己写订阅subscribe
+
+
+
+#### React-router
+
+react-router包含3个库，react-router、react-router-dom、react-router-native。react-router提供最基本的路由功能，使用时不会直接安装react-router，而是根据应用运行环境安装react-router-dom（浏览器中使用）或react-router-native（在rn中使用）。它们都依赖react-router，所以安装时react-router也会自动安装
+
+##### 基本使用
+
+react-router奉行一切皆组件的思想，路由器-Router、链接Link、路由Route、独占Switch、重定向Redirect都以组件形式存在
+
+##### Route组件渲染组件有三种方式
+
+- component: component
+
+  只有当location匹配的时候渲染
+
+- render: func
+
+  调用的只是个函数，只有当location匹配时渲染
+
+- children: func
+
+  不管location是否匹配都需要渲染的内容，可以用children，其他与render一样
+
+##### 404页面
+
+最后一个Route不写path值，直接写component，但是因为没有path值，所有页面都会渲染它，我们只让Route渲染一个，就在外面包一层`<Switch>`独占路由
+
+
+
+#### PureComponent
+
+##### 实现性能优化
+
+ ```jsx
+ //Component定制shoulddComponentUpdate后的Component
+ shouldComponentUpdate(nextProps, nextState) {
+     return nextState.count !== this.state.count
+ }
+ 
+ //或者直接extents PureComponent
+ ```
+
+##### 浅比较
+
+缺点是必须要用class的形式，而且是**浅比较**，只比较一层，当你有很多层就不再比较了，而且返回`false`值
+
+##### 与Component
+
+![image-20211031174704650](C:\Users\赵麒\AppData\Roaming\Typora\typora-user-images\image-20211031174704650.png)
+
+
+
+#### Hook
+
+##### 认识Hook
+
+Hook是一个特殊的函数，可以让你钩入React的特性，例如，`useState`是允许你在React函数组件中添加state的Hook。
+
+**什么时候使用Hook**当在编写函数组件并且意识到需要向其添加一些state，以前必须要转为class，现在可以在现有的函数组件中使用Hook
+
+
+
+##### 使用 Effect Hook
+
+Effect Hook 可以在函数组件中执行副作用操作
+
+数据获取，设置订阅以及手动更改React组件中的DOM都属于副作用。 
+
+![image-20211031180428803](C:\Users\赵麒\AppData\Roaming\Typora\typora-user-images\image-20211031180428803.png)
+
+
+
+#### 自定义Hook
+
+自定义一个Hook，命名要以use开头 
+
+```jsx
+function useClock() {
+    const [date, setDate] = useState(new Date());
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setDate(new Date())
+        }, 1000)
+        return () => clearInterval(timer)
+    }, [])
+    return date
+}
+```
+
+达到了状态逻辑共用
+
+#### Hook使用规则
+
+Hook就是JavaScript函数，但是使用它们会有两个额外的规则：
+
+- 只能在**函数最外层**调用Hook，不要再循环、条件判断或子函数中使用
+- 只能在**React函数组件**中调用Hook。不要再其他JS函数中调用。（还有一个地方可以调用Hook---就是自定义的Hook中）
+
+
+
+#### HOOK API 之callback useCallback
+
+##### useMemo
+
+把“创建“的函数和依赖项数组作为参数传入`use'Memo`，他仅会在某个依赖项改变时才重新计算memorized值，这种优化有助于避免在每次渲染时都进行高开销计算
+
+```jsx
+const expensive = useMemo(() => {
+    let sum = 0
+    for(let i = 0; i < count; i ++) {
+        sum += i
+    }
+    return sum
+    //只有count改变时，当前函数才执行
+}, [count])
+//返回值为值，而不是函数
+```
+
+##### useCallback
+
+将内联回调函数及依赖项数组，作为参数传入`useCallback`，它将返回该回调函数的memorized版本，该回调函数仅在某个依赖项改变时才会更新。当你把回调函数传递给经过优化的并使用引用相等性去避免非必要渲染（例如`shouldComponentUpdate`）的子组件时，他将非常有用
+
+父组件改变，子组件如果有参数传入（回调函数），也会改变，有依赖绑定就会监测以来是否变化来判断子组件是否render
+
+
+
+
+
+#### 高阶组件
+
+为了提高组件复用率，可测试性，就要保证组件功能单一性。但是若要满足复杂需求就要扩展功能单一的组件，在React里就有了HOC（Higher-Order-Components）的概念
+
+定义：**高阶组件是参数为组件，返回值为新组建的函数**
+
+
+
+##### 装饰器写法
+
+高阶组件本身是对装饰器模式的应用，自然可以利用ES7中出现的装饰器语法更优雅的书写代码
+
+`npm install -D @babel/plugin-proposal-decorators`
+
+更新`config-overrides.js`
+
+```jsx
+const { addDecoratorsLegacy } = require("customize-cra");
+
+module.exports = override(
+	...,
+    addDecoratorsLegacy()
+)
+```
+
+##### 使用HOC注意事项
+
+高阶组件时React中用于复用组件逻辑的一种高级技巧。HOC自身不是React API的一部分，它是基于React组合特性而形成的设计模式
+
+- 不要在render方法中使用HOC
+
+  React的diff算法（称为协调）使用组件标识来确定它是应该更新现有的子树还是将其丢弃并挂载新子树。如果从`render`返回的组件与前一个渲染中的组件相同，则React通过子树与新子树进行区分来递归更新子树。如果他们不相等，则完全卸载前一个子树
+
+```jsx
+render() {
+    //每次调用render函数都会创建一一个新的EnhancedComponent
+    const EnhancedComponent = enhance(MyComponent);
+    //这将导致子树每次渲染都会进行卸载和重新挂载操作
+    return <EnhancedComponent />
+}
+```
+
+这不仅仅是性能问题，重新挂载组件会导致该组件及其所有子组件状态丢失
+
+
+
+##### 表单组件设计思路
+
+- 表单组件要求实现**数据收集、校验、提交**等特性，可通过高阶组件来扩展
+- 高阶组件给表单组件传递一个input组件**包装函数**接管其输入事件并统一管理表单数据
+- 高阶组件给表单组件传递一个**校验函数**使其具备数据校验功能
+
+
+
+##### 弹窗类组件实现：Portal
+
+传送门，react v16之后出现的portal可以实现内容传送功能
+
+```jsx
+export default class Dialog extends Component {
+    constructor(props) {
+        super(props)
+        const doc = window.documents
+        this.node = doc.createElement("div")
+        doc.body.appendChild(this.node)
+    }
+    componentWillUnmount() {
+        window.document.body.removeChild(this.node)
+    }
+    render() {
+        return createPortal(..., this.node)
+    }
+}
+```
+
+
+
+#### Redux及其实现
+
+##### 组件跨层级通信-Context
+
+在一个典型的React应用中，数据通过props属性自上而下进行传递，但这种做法对于某些类型的属性而言是极其繁琐的（例如：地区偏好，UI主题），这些属性是应用程序中许多组件都需要的。Context提供了一种在组件之间共享此类值的方式，而不必显式的通过组件书逐层传递props
+
+React中使用的Context是祖代组件向后代组件跨层级传值。Vue中的provide & inject来源于Context
+
+
+
+##### Context API
+
+```jsx
+const ThemeContext = React.createContext(); //括号里可以给默认值
+```
+
+
+
+- 类组件
+
+```jsx
+
+//对于类组件
+const ThemeProvider = ThemeContext.Provider;
+
+//祖先
+<ThemeProvider value={theme}>	//provider
+	<子 />
+</ThemeProvider>
+//子 
+//只能挂在类上，不能挂在实例上
+(类).contextType = ThemeContext; //inject
+//或者
+class 类 {
+    static contextType = ThemeContext;
+}
+
+```
+
+- 函数式组件
+
+```jsx
+//对于函数式组件需要用到Consumer
+
+//祖先
+const ThemeConsumer = ThemeContext.Consumer
+
+//子
+<ThemeConsumer>
+	{
+        ctx => <子 />  //子组件里面就可以用ctx了
+    }
+</ThemeConsumer>
+```
+
+使用多个Context,可以用函数式组件嵌套高阶组件的写法
+
+##### 注意事项
+
+因为context会使用参考标识(reference identify)来决定何时渲染,所以可能会有一些问题
+
+当provider的父组件进行重渲染时可能在consumer组件中触发意外的渲染.比如下面的组件,每一次Provider重渲染时,会重渲染consumer组件,因为**value属性总是被赋值为新的对象**
+
+```jsx
+...
+<Provider value={{somethine: "something"}}>
+	...
+</Provider>
+...
+```
+
+为了防止这种情况,将**value状态提升到父节点的state里**
+
+```jsx
+constructor(props) {
+    ...
+    this.state = {
+        value: {
+            something: "something"
+        }
+    }
+}
+```
+
+
+
+##### 聚合函数!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+```jsx
+function compose(...func) {
+    if(funcs.length === 0) {
+        return args => args
+    }
+    if(funcs.length === 1) {
+        return funcs[0]
+    }
+    return funcs.reduce((a, b) => 
+                 		(...args) => a(b(...args)))
+}
+```
+
+
+
+#### Redux 上手
+
+Redux是JavaScript应用的状态容器。它保证程序行为一致性且易于测试。
+
+![image-20211104194610100](C:\Users\赵麒\AppData\Roaming\Typora\typora-user-images\image-20211104194610100.png)
+
+**Reducer**是一个纯函数（靠谱）
+
+- 纯函数
+
+  - 一个函数的返回结果只依赖于它的参数（不依赖外部变量）
+
+  - 执行过程没有副作用（不对外部产生 变化）
+
+##### 异步
+
+Redux只是个纯粹的状态管理器，默认只支持同步，实现异步任务 比如延迟，网络请求，需要中间件的支持，比如我们试用最简单的redux-thunk和redux-logger
+
+中间件就是一个函数，对`store.dispatch`方法进行改造，在发出Action和执行Reducer这两步之间，添加了其他功能
+
+```shell
+npm install redux-thunk redux-logger --save
+```
+
+##### 手写Redux
+
+```jsx
+export const createStore = (reducer) => {
+    let currentState = undefined
+    let currentListener = []
+
+    const getState = () => {
+        return currentState
+    }
+    const subscribe = (listener) => {
+        currentListener.push(listener)
+    }
+    const dispatch = (action) => {
+        currentState = reducer(currentState, action)
+        currentListener.map(listener => {
+            listener()
+        })
+    }
+    dispatch({type: "@INIT"})
+    return {
+        getState,
+        subscribe,
+        dispatch,
+    }
+}
+```
+
+
+
+##### 手写Redux（带applyMiddleware）
+
+```jsx
+export const createStore = (reducer, enhancer) => {
+    let currentState = undefined
+    let currentListener = []
+
+    if(enhancer) {
+        return enhancer(createStore)(reducer)
+    }
+
+    const getState = () => {
+        return currentState
+    }
+    const subscribe = (listener) => {
+        currentListener.push(listener)
+    }
+    const dispatch = (action) => {
+        currentState = reducer(currentState, action)
+        currentListener.map(listener => {
+            listener()
+        })
+    }
+
+    dispatch({type: "@INIT"})
+    return {
+        getState,
+        subscribe,
+        dispatch,
+    }
+}
+
+export const applyMiddleware = (...middlewares) => {
+    return createStore => (...args) => {
+        const store = createStore(...args)
+        let dispatch = store.dispatch
+        const middlewareApi = {
+            getState: store.getState,
+            dispatch: dispatch
+        }
+        const middlewareChain = middlewares.map(middleware => middleware(middlewareApi))
+        dispatch = compose(...middlewareChain)(dispatch)
+        console.log(dispatch)
+        return {
+            ...store,
+            dispatch
+        }
+    }
+}
+
+function compose(...func) {
+    if(func.length === 0) {
+        return args => args
+    } else if(func.length === 1) {
+        return func[0]
+    } else {
+        return func.reduce((a, b) =>
+            (...args) =>
+            a(b(...args)))
+    }
+}
+```
+
+##### 手写redux-thunk
+
+```jsx
+const thunk = (_ref) => {
+    let dispatch = _ref.dispatch,
+        getState = _ref.getState
+    console.log(_ref)
+    return next => action => {
+        if(typeof action === 'function') {
+            return action(dispatch, getState)
+        }
+        return next(action)
+    }
+}
+```
+
+
+
+#####  手写redux-logger
+
+```jsx
+const logger = (_ref) => {
+    let dispatch = _ref.dispatch,
+        getState = _ref.getState
+    return next => action => {
+        console.log(`prev state: ${getState()}`)
+        console.log(`action: ${action}`)
+        return next(action)
+    }
+}
+```
+
+
+
+#### react-redux
+
+redux每次都重新调用rener和getState太麻烦了，更react的方式是react-redux
+
+```jsx
+connect(
+	//mapStateToProps Function(state, ownProps)
+    state => ({count: state})
+    //ownProps是组件本身的props
+    // ! ownProps谨慎使用，如果ownProps发生变化的化，
+    // mapStateToProps会被重新执行，state也会被重新计算
+    //影响性能
+    
+    //mapDispatchToProps
+    //如果不指定mapDispatchToProps，默认props会被注入dispatch本身
+    //object, dispatch本身不会被注入props
+    {
+    	add: () => ({type: "ADD"})
+    }
+    //function
+    (dispatch) => {
+        let res = {
+            add: () => ({type: "ADD"}),
+            minus: () => ({type: "MINUS"})
+        }
+        res = bindActionCreators(res, dispatch)
+        return {
+            dispatch,
+            ...res
+        }
+    }
+    //mergeProps
+    (stateProps, dispatchProps, ownProps) => {
+        return {...stateProps, 
+                ...dispatchProps,
+                ...ownProps
+               }
+    }
+)(
+	class ...
+)
+```
+
+##### 手写react-redux
+
+思路：
+
+- Provider实现：`...Context.Provider`包裹组件返回
+- connect实现：高阶组件，传入`Context`，将Context中的内容按connect中给的参数进行处理后展开放入目的组件作为`props`
+
+```jsx
+import React, {Component, createContext} from 'react';
+import bindActionCreators from "react-redux/lib/utils/bindActionCreators";
+
+const valueContext = createContext()
+export const connect = (
+    mapStateToProps,
+    mapDispatchToProps,
+    mergeProps
+) => MiddleComponent => {
+    return class extends Component {
+        // 此时组件所有生命周期都能获得this.context
+        static contextType = valueContext
+        constructor(props) {
+            super(props);
+            this.state = {
+                props: { ...props }
+            }
+        }
+        componentDidMount() {
+            const {subscribe} = this.context
+            this.update()
+            subscribe(this.update)
+        }
+
+        update = () => {
+            // getState获取store的state, dispatch
+            const {getState, dispatch} = this.context
+            let stateProps = mapStateToProps(getState())
+            let dispatchProps
+            if(typeof mapDispatchToProps === 'object') {
+                dispatchProps = bindActionCreators(mapDispatchToProps, dispatch)
+            } else if(typeof mapDispatchToProps === 'function') {
+                dispatchProps = mapDispatchToProps(dispatch, this.props)
+            } else {
+                dispatchProps = {dispatch}
+            }
+
+            this.setState({
+                props: {
+                    ...stateProps,
+                    ...dispatchProps
+                }
+            })
+        }
+
+        render() {
+            return (
+                <div>
+                    <MiddleComponent {...this.state.props}/>
+                </div>
+            );
+        }
+    }
+}
+
+
+export class Provider extends Component {
+
+    render() {
+        const ValueProvider = valueContext.Provider
+        return (
+            <ValueProvider value={this.props.store}>
+                {this.props.children}
+            </ValueProvider>
+
+        );
+    }
+}
+
+```
+
+
+
+#### react-router
+
+#### route三种
+
+component
+
+```jsx
+<Router>
+	<Route component={<Child />} />
+    //如果采用下面这种形式，会产生重复的卸载和挂载
+    //原因：渲染component的时候会调用React.createElement，如果使用下面这种匿名函数的形式导致生成的组件的type值总是不相同，这个时候会产生重复的卸载和挂载
+    <Route component={() => <Child />} />
+</Router>
+```
+
+render
+
+```jsx
+<Router>
+	<Route render={() => <Child />} />
+</Router>
+```
+
+Route核心渲染代码
+
+![image-20211106152644690](C:\Users\赵麒\AppData\Roaming\Typora\typora-user-images\image-20211106152644690.png)
+
+由此可知：优先级 `children` > `conponent` > `render`
+
+- 1.BrowserRouter保持不变(historyRouter)；
+
+- 2.Switch替换成了Routes；
+- 3.Route中统一使用element属性，去掉原来的component和render；
+- 4.子路由可以省略上级路由了，比如/page1/page1-1以往需要写完整的Path，而目前可以继承上级页的路由了，甚至斜线都可以省略；
+- 5.useNavigate取代useHistory，并且api也有相应的变化；
+- 6.新增了Outlet，作用相当于`{this.props.children}`，获取`params`可以用`useParams`
+- 要想获得`history`和`location`的值必须要在`Route`的组件里获得，因为`Context`必须要在在`Consumer`的后面才能获得
+
+#### generator函数
+
+function 与 函数名之间有个*
+
+```jsx
+// yield 只能在generator中，在别的地方会报错
+// function 与函数名之间有个*, 函数返回遍历器对象，只有调用next方法才会遍历下一个内部状态，一般称他为惰性求值
+// yield 定义了内部不同的状态
+function* hello() {
+    yield "hello"
+    yield "world"
+    return "ending"
+}
+
+let hw = hello()
+console.log(hw.next()) // {value: hello, done: false}
+console.log(hw.next()) // {value: world, done: false}
+console.log(hw.next()) // {value: ending, done: true}
+console.log(hw.next()) // {value: undefined, done: false}
+
+
+function fn(a,b){
+  console.log('fn..')
+  return a + b
+}
+function* gen(x) {
+  console.log(x)
+  let y = yield fn(x,100) + 3
+  console.log(y)
+  return 200
+}
+//第一次执行log时，输出103
+console.log( g.next() )
+//再次执行 g.next() 的时候，代码由上次暂停处开始执行，但此时 yield 表达式的值并不是使用刚刚计算的结果，而是使用 g.next 的参数 undefined ， 所以 y的值变为 undefined ，输出 undeined 
+console.log( g.next() )
+// 要想将刚刚的计算值103给下一个yield用
+g.next(g.next().value)
+```
+
+
+
+
+
+### React原理解析
+
+#### JSX
+
+1. 什么是jsx？
+
+   语法糖
+
+2. 为什么需要？
+   开发效率
+   执行效率
+   类型安全
+
+3. 原理：`babel-loader`会预编译JSX为React.createElement(...)，这也就是为什么每次用jsx都要引入React，为了使用createElement
+
+4. 与vue的异同：
+
+   react中的虚拟dom+jsx一开始就出现了，vue则是在演进过程中出现的
+
+   jsx本来就是js扩展，转义过程简单直接得多；vue将template编译为render函数的过程需要复杂的编译器转换字符串-ast-js函数字符串
+
+   
+
+#### 核心API
+
+##### React.createElement
+
+`createElement(type, config, children) //创建并返回一个新的元素（虚拟DOM）`
+
+- 遍历config值，将其赋值给props
+- `children`如果arguments长度大于3的话，遍历`arguments`，否则直接将children赋值给`props.children`
+
+```js
+//接受type，props，children，返回一个vnode
+function createElement(type, config, ...children) {
+    return {
+        type,
+        props: {
+            ...config,
+            children: children.map(child => typeof child === 'object' ? child : createTextNode(child))
+        }
+    }
+}
+
+// 将text节点也化为vnode对象，便于后面处理
+function createTextNode(text) {
+    return {
+        type: 'TEXT',
+        props: {
+            children: [],
+            nodeValue: text
+        }
+    }
+}
+```
+
+
+
+##### React.Component
+
+`//实现自定义组件`
+
+##### ReactDOM.render
+
+`ReactDOM.render(element, container, [callback]) //渲染真实DOM，将vnode渲染成真实DOM放入container`
+
+```js
+function render(vnode, container) {
+    // vnode -> node
+
+    const node = createNode(vnode, container);
+
+    // 把node更新到container
+    if(container !== node) {
+        container.appendChild(node)
+    }
+}
+```
+
+```js
+// 将vnode 渲染成真实dom
+function createNode(vnode, container) {
+    const {type, props} = vnode
+    let node
+    // 因为class也是function的语法糖，所有这里这么判断
+    if(typeof type === 'function') {
+        node = type.prototype.isReactComponent ? updateClassComponent(vnode) : updateFunctionComponent(vnode)
+    } else if(type === "TEXT") {
+        node = document.createTextNode(props.nodeValue)
+    } else if(type) {
+        node = document.createElement(type)
+    } else {
+        node = container
+        //也可以用createDocumentFragment
+    }
+    // 挂载props
+    updateNode(node, props)
+    // 递归render子组件
+    reconcilerChildren(props.children, node)
+    // return 在递归后面，说明渲染是从上到下，挂载是从下到上
+    return node
+}
+```
+
+
+
+**当首次调用时，容器节点里的所有DOM元素都会被替换，后续的调用则会使用React的DOM差分算法（DOM diffing algorithm）进行高效的更新**
+
+如果提供了可选的回调函数，该回调会在组件被渲染或者更新之后被调用
+
+
+
+#### React & ReactDOM 简单实现
+
+##### html元素  HostComponent
+
+`node = document.createElement(type)`
+
+##### Function元素
+
+```js
+function updateFunctionComponent(vnode) {
+    let {type, props} = vnode
+    const vvnode = type(props)
+    const node = createNode(vvnode)
+    return node
+}
+```
+
+
+
+##### ClassComponent元素
+
+```js
+function updateClassComponent(vnode) {
+    const {type, props} = vnode
+    const cmp = new type(props)
+    const vvnode = cmp.render()
+    const node = createNode(vvnode)
+    return node
+}
+```
+
+
+
+##### 事件绑定
+
+##### Fragment元素（空标签）
+
+![image-20211109201712499](C:\Users\赵麒\AppData\Roaming\Typora\typora-user-images\image-20211109201712499.png)
+
+
+
+### reconciliation协调
+
+#### 设计动力
+
+在某一时间节点调用React的`render()`方法，会创建一颗由React元素组成的树。在下一次state或props更新时，相同的`render()`方法会返回一颗不同的树。React需要基于这两棵树之间的差别来判断如何有效率的更新UI以保证当前UI与最新的树保持同步。
+
+这个算法问题有一些通用的解决方案，即生成将一棵树转换成另一棵树的最小操作树。然而即使在最前沿的算法中，该算法的复杂度仍为`DFS：O(n3)`，其中n是树中元素的数量。
+
+开销过高，于是React在以下两个假设的基础上提出了一套**O(n)**的启发式算法：
+
+1. 两个不同类型的元素会产生不同的树
+2. 开发者通过`key`**prop**来暗示哪些子元素在不同的渲染能保持稳定
+
+假设在实践中基本成立
+
+#### diff策略
+
+- 同级比较 
+
+  只会对同一层级的节点进行比较，如果节点不存在直接**删除创建**
+
+- 容易类型的组件继续tree diff比较，不同类型的组件直接**删除重建**
+
+- 开发者可以通过`key`prop来暗示哪些子元素在不同的渲染下能保持稳定
+
+- list diff
+
+  - 插入，新的component类型不在老集合里，即是全新的节点，需要对新节点执行插入操作。
+  - 移动，在老集合有新component类型，且element是可更新的类型，generateComponentChildren 已调用 receiveComponent，这种情况下 prevChild=nextChild，就需要做移动操作，可以复用以前的 DOM 节点。
+  - 删除，老 component 类型，在新集合里也有，但对应的 element 不同则不能直接复用和更新，需要执行删除操作，或者老 component 不在新集合里的，也需要执行删除操作。
+
+
+
+##### 由此可得出：
+
+- 建议，在开发组件时，保持稳定的DOM结构会有助于性能的提升
+- 建议，在开发过程中，尽量减少类似将最后一个节点移动到列表首部的操作，当节点数量过大、更新频繁时，在一定程度上会影响React的渲染性能
+
+
+
+#### fiber
+
+##### 为什么会需要fiber
+
+1. 对于大型项目，组件数会很大，这个时候递归遍历的成本就会很高，会造成主线程被持续占用，结果就是主线程上的布局、动画等周期性任务就无法立即得到处理，造成视觉上的卡顿，影响用户体验
+2. 任务分解的意义-----解决上面的问题
+3. 增量渲染（把渲染任务拆成块，匀到多帧）
+4. 更新时能够暂停、终止、复用渲染任务
+5. 给不同类型的更新赋予优先级
+6. 并发方面新的基础能力
+7. 更流畅
+
+
+
+#### fiber前置
+
+js是单线程运行的，严格来说，js引擎和页面渲染引擎在同一个渲染线程，GUI渲染和js执行是互斥的，另外异步I/o底层实际上可能是多线程在驱动。js同时只能做一件事，如果有一个任务一直霸占CPU，浏览器就会卡死
+
+##### 对于前端框架，解决有三个方向：
+
+1. 优化每个任务，挤压CPU运算量
+2. 快速响应用户，不阻塞用户交互
+3. 尝试Worker多线程
+
+Vue选择1，因为对于Vue，使用模板使它有了很多优化空间，配合响应式机制让Vue精确节点更新；React则选择了2
+
+
+
+##### 为什么引入Fiber？
+
+React渲染时，会递归对比VDOM树，找出需要变动的节点，然后同步更新他们。这个过程称为`Reconcilation 协同`
+
+Reconcilation期间，React会霸占浏览器资源，一则用户触发事件得不到响应，二则掉帧。
+
+Reconcilation是CPU密集型操作，相当于操作系统中的长进程。所以和进程调度一样，我们要让高优先级进程或者短进程优先运行，不能让长进程长期霸占资源。
+
+
+
+##### 如何优化？
+
+为了给用户制造一种应用很快的假象，我们不能让一个程序长期霸占资源。可以将浏览器的渲染、布局、绘制、资源加载、事件响应、脚本执行视为操作系统的进程。我们需要某些调度策略合理分配CPU资源，从而提高浏览器的用户响应速度，同时兼顾任务执行效率。
+
+所以React通过Fiber架构，让Reconcilation过程变成可被中断。适时让出CPU执行权
+
+
+
+#### 何为Fiber？
+
+1. ##### 一种流程控制原语
+
+   Fiber也称协程，协程与线程并不一样，写成本身是没有并发或者并行能力的（需要配合线程），它只是一种控制流程的让出机制
+
+   普通函数执行过程无法被**中断和恢复**
+
+   而Generator却可以。
+
+   - Fiber思想和协程的概念是契合的：**React渲染过程可以被中断，可以将控制权交回浏览器**
+
+   - `requestIdleCallback` API，通过超时检查的机制让出控制权
+
+     浏览器在一帧内可能会做执行下列任务，而且它们的执行顺序基本是固定的:
+
+     - 处理用户输入事件
+     - Javascript执行
+     - requestAnimation 调用
+     - 布局 Layout
+     - 绘制 Paint
+
+     如果浏览器在一帧内处理完上述任务，还有盈余时间，浏览器就会调用`requestIdleCallback` 的回调
+
+     但是在浏览器繁忙的时候，可能不会有盈余事件，回调很难执行，为了避免饿死，可以通过给第二个参数指定超时时间
+
+   > 目前`requestIdleCallback只有Chrome支持，所以React自己实现了一个`
+
+   - **任务优先级**
+
+     上面说了，为了避免任务被饿死，可以设置一个超时时间. **这个超时时间不是死的，低优先级的可以慢慢等待, 高优先级的任务应该率先被执行**. 目前 React 预定义了 5 个优先级, 这个我在[《谈谈React事件机制和未来(react-events)》]中也介绍过:
+
+     - `Immediate`(-1) - 这个优先级的任务会同步执行, 或者说要马上执行且不能中断
+     - `UserBlocking`(250ms) 这些任务一般是用户交互的结果, 需要即时得到反馈
+     - `Normal` (5s) 应对哪些不需要立即感受到的任务，例如网络请求
+     - `Low` (10s) 这些任务可以放后，但是最终应该得到执行. 例如分析通知
+     - `Idle` (没有超时时间) 一些没有必要做的任务 (e.g. 比如隐藏的内容), 可能会被饿死
+
+     
+
+2. ##### 一个执行单元
+
+   Fiber可以将它视为一种执行单元，每执行完一个，React就会检查现在还剩多少时间，如果没时间就将控制权让出去。
+
+   
+
+![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/10/21/16deed1711f281b3~tplv-t2oaga2asx-watermark.awebp)
+
+#### FiberNode
+
+- child 指的是第一个子元素
+- sibling 指的是 后面第一个兄弟元素
+
+![image-20211111195630018](C:\Users\赵麒\AppData\Roaming\Typora\typora-user-images\image-20211111195630018.png)
+
+
+
+### 实现fiber
+
+##### `window.requestIdleCallback(callback, [option])`
+
+#### 初始化
+
+``` js
+
+//下一个子任务
+import {DELETE, PLACEMENT, UPDATE} from "./CONST";
+
+let nextUnitOfLoop = null
+// work in progress 工作中的fiber root
+let wipRoot = null
+
+// 现在的根节点
+let currentRoot = null
+
+// 当前正在工作的fiber
+let wipFiber = null
+// 指向当前哪个hook
+let hookIndex = null
+
+// 删除的组件数组
+let deletions = []
+```
+
+
+
+#### 构建fiber结构
+
+一开始只有根节点初始化了Fiber结构，所以需要从根节点开始进行父节点对每个子节点的fiber构建
+
+```js
+
+function reconcilerChildren(workInProgressFiber, children) {
+    // 构建fiber结构
+    // 数组
+    // 更新 删除 新增
+    let prevSibling = null
+    // 一开始只有root有base 一开始为wipFiber 为 wipRoot，会将wipRoot的base的child赋给oldFiber，这样从上到下的base值就会覆盖了
+    let oldFiber = workInProgressFiber.base && workInProgressFiber.base.child
+    for(let i = 0; i < children.length; i ++) {
+        let child = children[i]
+        let newFiber = null
+
+        // todo 比较type key
+        const sameType = child && oldFiber && child.type === oldFiber.type
+        if(sameType) {
+            // 复用update 在type相同的时候，不需要重新渲染
+            newFiber = {
+                type: oldFiber.type, //类型 区分不同fiber，比如function，class
+                props: child.props,// 属性参数
+                node: oldFiber.node,//真实dom节点
+                base: oldFiber,//存储fiber，便于去比较
+                parent: workInProgressFiber,
+                effectTag: UPDATE
+            }
+        }
+        if(!sameType && child) {
+            // placement 新增
+            newFiber = {
+                type: child.type, //类型 区分不同fiber，比如function，class
+                props: child.props,// 属性参数
+                node: null,//真实dom节点
+                base: null,//存储fiber，便于去比较
+                parent: workInProgressFiber,
+                effectTag: PLACEMENT
+            }
+        }
+        if(!sameType && oldFiber) {
+            // 删除
+            oldFiber.effectTag = DELETE
+            deletions.push(oldFiber)
+        }
+
+        if(oldFiber) {
+            oldFiber = oldFiber.sibling
+        }
+        // parent
+        // child
+        if(i === 0) {
+            // 正在工作的节点的 子节点指向 为children[0]构建的fiber
+            workInProgressFiber.child = newFiber
+        } else {
+            // 因为要存fiber 所以不能存 children[i + 1]
+            prevSibling.sibling = newFiber
+        }
+        prevSibling = newFiber
+        // sibling
+    }
+}
+```
+
+
+
+#### 执行当前任务
+
+```js
+function performUnitWork(fiber) {
+    // 执行当前子任务
+    const {type} = fiber
+    if(typeof type === 'function') {
+        if(type.prototype.isReactComponent) {
+            updateClassComponent(fiber)
+        } else if(type) {
+            updateFunctionComponent(fiber)
+        } else {
+            updateFragmentComponent(fiber)
+        }
+    } else {
+        updateHostComponent(fiber)
+    }
+
+    // 返回下一个
+    // 找到下个任务的原则： 先找子元素
+    if(fiber.child) {
+        return fiber.child
+    }
+    //如果没有子元素，寻找兄弟元素
+    let nextFiber = fiber
+    while (nextFiber) {
+        // 找兄弟，没有就找父亲的兄弟
+        if(nextFiber.sibling) {
+            return nextFiber.sibling
+        }
+        nextFiber = nextFiber.parent
+    }
+}
+
+```
+
+
+#### 任务循环
+
+```js
+
+function workLoop(deadline) {
+    // 执行子任务
+    // 返回下一个子任务
+    // ...
+    while(nextUnitOfLoop && deadline.timeRemaining() > 1) {
+        //有下个子任务，并且当前帧还没结束
+        // 有时间的时候就执行nextUnitOfLoop
+        // 并将其返回值（一个链表节点）赋给nextUnitOfLoop
+        nextUnitOfLoop = performUnitWork(nextUnitOfLoop)
+    }
+
+    // 没有子任务 --> 提交
+    if(!nextUnitOfLoop && wipRoot) {
+    //   提交 ? 挂载
+        commitRoot()
+    }
+}
+```
+
+
+
+
+
+### Hooks原理
+
+Hooks实际上就是`Fiber`上的一个数组 
+
+```js
+export function useState(init) {
+    // 新旧
+
+    const oldHook = wipFiber.base && wipFiber.base.hooks[hookIndex]
+    const hook = {
+        state: oldHook ? oldHook.state : init,
+        queue: []
+    }
+
+    const actions = oldHook ? oldHook.queue : []
+    actions.forEach(action => {
+        hook.state = action
+    })
+    deletions = []
+
+    const setState = action => {
+        //action 就是新state
+        hook.queue.push(action)
+
+        wipRoot = {
+            node: currentRoot.node,
+            props: currentRoot.props,
+            base: currentRoot
+        }
+        nextUnitOfLoop = wipRoot
+        requestIdleCallback(workLoop)
+    }
+    wipFiber.hooks.push(hook)
+    hookIndex ++
+    return [hook.state, setState]
+}
+```
+
+
+
+

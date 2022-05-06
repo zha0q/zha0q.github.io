@@ -1,0 +1,111 @@
+# Webpack
+
+#### 问题
+
+1. 为什么 devserver 还能够定位到代码源头行数
+
+   ```
+   hello world                             foo.js:9
+   
+   ```
+
+
+
+#### 一、开始
+
+- 模块 loader 可以链式调用。链中的每个 loader 都将对资源进行转换。链会**逆序执行**。第一个 loader 将其结果（被转换后的资源）传递给下一个 loader，依此类推。最后，webpack 期望链中的最后的 loader 返回 JavaScript。
+
+  应保证 loader 的先后顺序：[`'style-loader'`](https://webpack.docschina.org/loaders/style-loader) 在前，而 [`'css-loader'`](https://webpack.docschina.org/loaders/css-loader) 在后。如果不遵守此约定，webpack 可能会抛出错误。
+
+- scoped 局部样式 基于 PostCSS实现 
+
+- css-loader帮助解析css文件中的css代码，style-loader作用：将css代码挂载到html上；实际上css-loader是将css代码转化成js的字符串, 所以打包后可以看见, style-loader是将这些css的字符串作为内容插入style标签内部.
+
+  ```jsx
+  let style = document.createElement("style");
+  style.innerText = css[0][1];
+  
+  body.appendChild(style);
+  ```
+
+
+
+#### 二、基础概念
+
+-  loader 理解为是一个转换器，负责把某种文件格式的内容转换成 webpack 可以支持打包的模块
+
+- ```js
+  output: {
+      path: path.join(__dirname, '/dist/[hash]'),
+      // 路径中使用 hash，每次构建时会有一个不同 hash 值，可以用于避免发布新版本时浏览器缓存导致代码没有更新
+      // 文件名中也可以使用 hash
+    },
+  ```
+
+  
+
+- plugin 用于处理更多其他的一些构建任务。可以这么理解，模块代码转换的工作由 loader 来处理，除此之外的其他任何工作都可以交由 plugin 来完成。
+
+- MiniExtractPlugin：提取JS中的CSS样式，用`link`外部引入，减少JS文件的大小，简称CCSS样式分离。 “它为每个包含CSS的JS文件创建一个CSS文件”中的包含CSS的JS文件是指**打包后生成的JS文件**。
+
+- 当 Vue Loader 编译单文件组件中的 `<template>` 块时，它也会将所有遇到的资源 URL 转换为 **webpack 模块请求**。
+
+- 
+
+#### 四、前端构建基础配置
+
+- 如果我们的文件名或者路径会变化，例如使用 `[hash]` 来进行命名，那么最好是将 HTML 引用路径和我们的构建结果关联起来，这个时候我们可以使用 [html-webpack-plugin](https://link.juejin.cn/?target=https%3A%2F%2Fdoc.webpack-china.org%2Fplugins%2Fhtml-webpack-plugin%2F)。
+
+#### 五、使用Loader
+
+- `test/include/exclude` 是 `resource.(test/include/exclude)` 的简写，`and/or/not` 这些则需要放到 `resource` 中进行配置。
+- module.type: 'javascript/esm', // 这里指定模块类型
+- 如果多个 rule 匹配了同一个模块文件，webpack 在 `rules` 中提供了一个 `enforce` 的字段来配置当前 rule 的 loader 类型，没配置的话是普通类型，我们可以配置 `pre` 或 `post`，分别对应前置类型或后置类型的 loader。
+- `module.noParse` 字段，可以用于配置哪些模块文件的内容不需要进行解析。对于一些**不需要解析依赖（即无依赖）** 的第三方大型类库等，可以通过这个字段来配置，以提高整体的构建速度。
+
+#### 六、使用plugin
+
+- DefinePlugin
+- TerserPlugin
+- IgnorePlugin
+- webpack-bundle-analyzer
+
+#### 七、优化图片&HTML&CSS
+
+- CSS Sprites，利用工具将多个小图片合并成一张，然后利用 CSS background position 的方式来引用到对应的图片资源，这种方式受到 CSS background 的限制，并且 position 的值都由工具生成，有时候不便于维护。
+- 现在更为方便的方式是直接将小图片转换为 base64 编码，使用 DataURL 来引用它，将图片变成编码和代码文件打包到一起，同样可以起到减少小图片请求数量的效果。
+- [url-loader](https://link.juejin.cn/?target=https%3A%2F%2Fgithub.com%2Fwebpack-contrib%2Furl-loader) 和 [file-loader](https://link.juejin.cn/?target=https%3A%2F%2Fgithub.com%2Fwebpack-contrib%2Ffile-loader) 的功能类似，但是在处理文件的时候，可以通过配置指定一个大小，当文件小于这个配置值时，url-loader 会将其转换为一个 base64 编码的 DataURL，配置如下：
+
+#### 八、优化JS代码
+
+- TreeShaking：当你使用 [TerserPlugin](https://link.juejin.cn/?target=https%3A%2F%2Fgithub.com%2Fwebpack-contrib%2Fterser-webpack-plugin) 后，Terser 会移除那些没有对外暴露且没有额外副作用的方法，来减小构建出来的代码体积。Terser只有在打包环境为production时才生效。
+- 这里的副作用针对模块，如果一个模块单纯的导入导出变量那就是无副作用的，如果还修改其他模块或者全局的一些东西（CSS）就是有副作用的。
+- 其实 webpack 里的 `sideEffects: false` 的意思并不是我这个模块真的没有副作用，而只是为了在摇树时告诉 webpack：**我这个包在设计的时候就是期望没有副作用的，即使他打完包后是有副作用的，webpack 同学你摇树时放心的当成无副作用包摇就好啦！**这样webpack就 不会把 lodash-es 所有的代码内容打包进来，只是打包了你用到的那两个模块相关的代码，这便是 sideEffects 的作用。
+- 「package.json」下的 `sideEffects` 可以是匹配文件路径的数组，表示这些模块文件是有副作用的，不能被移除：
+
+#### 九、提升构建速度
+
+- 减少 `resolve` 的解析
+- 把 loader 应用的文件范围缩小
+- 减少 plugin 的消耗
+- 选择合适的 devtool
+
+
+
+#### 十、流程
+
+- ![img](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0c22cb909cbd46cf98bbc64fdec5065f~tplv-k3u1fbpfcp-zoom-in-crop-mark:1304:0:0:0.awebp)
+
+
+
+
+
+
+
+# Vite
+
+#### 一、模块标准
+
+1. 模块化问题：变量冲突、模块依赖加载顺序
+2. 解决：文件划分、命名空间、IIFE
+3. CJS：模块加载需要第三方loader支持、模块请求会造成浏览器JS解析过程的阻塞

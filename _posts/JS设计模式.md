@@ -1,3 +1,11 @@
+---
+title: JS设计模式
+author: zq
+date: 
+category: contest
+layout: post
+---
+
 ![23种设计模式](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/4/6/169f16406d230ffe~tplv-t2oaga2asx-watermark.awebp)
 
 ### 创建型：

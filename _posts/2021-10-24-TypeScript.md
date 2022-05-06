@@ -1,3 +1,12 @@
+---
+title: TypeScript
+author: zq
+date: 2021-10-24
+category: contest
+layout: post
+---
+
+
 #### TS类型编程为什么叫做类型体操？
 
 1. TypeScript 给 JavaScript 增加了一套静态类型系统，通过 TS Compiler 编译为 JS，编译的过程做类型检查。
